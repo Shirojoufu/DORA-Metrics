@@ -17,6 +17,42 @@ plus merged pull requests. The definitions live in one place,
 [src/dora_metrics/metrics.py](src/dora_metrics/metrics.py), as pure functions
 with their own tests. Everything else only fetches, stores or charts.
 
+## Example: vercel/next.js
+
+Next.js publishes a canary release to npm most days, and each publish is
+recorded as a GitHub Deployment to `release-canary`. For a library, a release
+is the deployment, so lead time here runs from a merged PR's first commit to
+the canary that ships it. (Its `Production` environment only had 3
+deployments in this window.)
+
+```
+$ uv run dora vercel/next.js --environment release-canary
+DORA metrics for vercel/next.js (release-canary), last 90 days
+
+  Deployment frequency   124 deploys (9.6/week)
+  Lead time for changes  30.2h (median)
+  Change failure rate    2% (2 of 126)
+  Recovery time          10.1h (median)
+
+  Week of      Deploys  Failed   CFR    Lead  Recovery
+  2026-07-20         3       0    0%   27.3h         -
+  2026-07-27         8       1   11%   28.4h         -
+  2026-08-03        10       1    9%   28.5h     10.1h
+  2026-08-10        12       0    0%   30.8h         -
+  ...
+  2026-10-12         9       0    0%   25.9h         -
+  2026-10-19         4       0    0%   45.2h         -
+
+Saved to localhost:5432/dora
+```
+
+![DORA dashboard in Grafana for vercel/next.js release-canary](docs/dashboard.png)
+
+In short: about 1.4 releases a day, 2 of 126 failed, and each failure was
+followed by a successful canary 14.0h and 6.1h later. The run took about 10
+minutes and roughly 1,300 API requests, mostly one per merged PR (1,166 of
+them) to find its first commit.
+
 ## Quick start
 
 Requires [uv](https://docs.astral.sh/uv/) and Docker.
