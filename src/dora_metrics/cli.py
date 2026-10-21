@@ -31,7 +31,8 @@ def _rate(r: float | None) -> str:
 def _print_report(repo: str, env: str, days: int, overall: Summary, weeks) -> None:
     per_week = overall.deployments / (days / 7)
     print(f"DORA metrics for {repo} ({env}), last {days} days\n")
-    print(f"  Deployment frequency   {overall.deployments} deploys ({per_week:.1f}/week)")
+    noun = "deploy" if overall.deployments == 1 else "deploys"
+    print(f"  Deployment frequency   {overall.deployments} {noun} ({per_week:.1f}/week)")
     print(f"  Lead time for changes  {_duration(overall.median_lead_time)} (median)")
     print(
         f"  Change failure rate    {_rate(overall.change_failure_rate)} "
