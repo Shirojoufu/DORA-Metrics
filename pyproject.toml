@@ -1,0 +1,31 @@
+[project]
+name = "dora-metrics"
+version = "0.1.0"
+description = "Calculate DORA metrics for a GitHub repo and chart them in Grafana"
+readme = "README.md"
+license = "MIT"
+authors = [{ name = "Graham Rust" }]
+requires-python = ">=3.12"
+dependencies = [
+    "httpx>=0.28.1",
+    "psycopg[binary]>=3.3.6",
+]
+
+[project.scripts]
+dora = "dora_metrics.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.13.1,<0.14.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "ruff>=0.17.1",
+]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

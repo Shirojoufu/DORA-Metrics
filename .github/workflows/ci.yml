@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-24.04
+    # Real Postgres for tests/test_store.py
+    services:
+      postgres:
+        image: postgres:18.6-alpine
+        env:
+          POSTGRES_USER: dora
+          POSTGRES_PASSWORD: dora
+          POSTGRES_DB: dora
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U dora"
+          --health-interval 2s
+          --health-retries 15
+    env:
+      DORA_TEST_DATABASE_URL: postgresql://dora:dora@localhost:5432/dora
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # Pinned by commit: setup-uv no longer publishes floating major tags
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --locked
+
+      - name: Lint
+        run: |
+          uv run ruff check --output-format=github
+          uv run ruff format --check
+
+      - name: Test
+        run: uv run pytest -v
+
+      - name: Dashboard JSON matches its generator
+        run: |
+          uv run python grafana/build_dashboard.py
+          git diff --exit-code grafana/dashboards/ \
+            || { echo "::error::Run 'uv run python grafana/build_dashboard.py' and commit the result"; exit 1; }

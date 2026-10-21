@@ -1,0 +1,41 @@
+# Postgres + Grafana with the DORA dashboard provisioned. Local use only:
+# the credentials below are fixed defaults, not secrets.
+#
+#   docker compose up -d
+#   DORA_DATABASE_URL=postgresql://dora:dora@localhost:5432/dora dora --repo owner/name
+#   open http://localhost:3000
+services:
+  postgres:
+    image: postgres:18.6-alpine
+    environment:
+      POSTGRES_USER: dora
+      POSTGRES_PASSWORD: dora
+      POSTGRES_DB: dora
+    ports:
+      - "5432:5432"
+    volumes:
+      # Postgres 18 images keep data under a versioned subdirectory of this
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "dora"]
+      interval: 2s
+      retries: 15
+
+  grafana:
+    image: grafana/grafana:13.2.4
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Read-only anonymous access so the dashboard opens without a login
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/dora.json
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+
+volumes:
+  postgres-data:

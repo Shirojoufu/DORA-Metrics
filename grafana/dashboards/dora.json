@@ -1,0 +1,508 @@
+{
+  "uid": "dora",
+  "title": "DORA metrics",
+  "description": "Deployment frequency, lead time, change failure rate and recovery time.",
+  "tags": [
+    "dora"
+  ],
+  "timezone": "utc",
+  "schemaVersion": 41,
+  "time": {
+    "from": "now-90d",
+    "to": "now"
+  },
+  "refresh": "",
+  "templating": {
+    "list": [
+      {
+        "name": "repo",
+        "label": "Repo",
+        "type": "query",
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "dora-postgres"
+        },
+        "query": "select distinct repo from deployments order by 1",
+        "definition": "select distinct repo from deployments order by 1",
+        "refresh": 1,
+        "sort": 1,
+        "current": {},
+        "options": [],
+        "includeAll": false,
+        "multi": false
+      },
+      {
+        "name": "environment",
+        "label": "Environment",
+        "type": "query",
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "dora-postgres"
+        },
+        "query": "select distinct environment from deployments where repo = '$repo' order by 1",
+        "definition": "select distinct environment from deployments where repo = '$repo' order by 1",
+        "refresh": 1,
+        "sort": 1,
+        "current": {},
+        "options": [],
+        "includeAll": false,
+        "multi": false
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Deployments per week",
+      "description": "Successful deployments in the selected time range, per week.",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "dora-postgres"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "dora-postgres"
+          },
+          "refId": "A",
+          "rawQuery": true,
+          "format": "table",
+          "editorMode": "code",
+          "rawSql": "select count(*) / greatest(extract(epoch from ($__timeTo()::timestamptz - $__timeFrom()::timestamptz)) / 604800, 1e-9) as \"Deployments per week\" from deployments where repo = '$repo' and environment = '$environment' and state = 'success' and $__timeFilter(finished_at)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "decimals": 1
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value"
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Lead time for changes",
+      "description": "Median time from a PR's first commit to the deployment that shipped it.",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "dora-postgres"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "dora-postgres"
+          },
+          "refId": "A",
+          "rawQuery": true,
+          "format": "table",
+          "editorMode": "code",
+          "rawSql": "select percentile_cont(0.5) within group (order by lead_time_hours) * 3600 as \"Median lead time\" from lead_times where repo = '$repo' and environment = '$environment' and $__timeFilter(deployed_at)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value"
+      }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Change failure rate",
+      "description": "Share of finished deployments that failed.",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "dora-postgres"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "dora-postgres"
+          },
+          "refId": "A",
+          "rawQuery": true,
+          "format": "table",
+          "editorMode": "code",
+          "rawSql": "select avg((state <> 'success')::int) as \"Change failure rate\" from deployments where repo = '$repo' and environment = '$environment' and $__timeFilter(finished_at)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.15
+              },
+              {
+                "color": "red",
+                "value": 0.3
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value"
+      }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Recovery time",
+      "description": "Median time from a failed deployment to the next successful one.",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "dora-postgres"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "dora-postgres"
+          },
+          "refId": "A",
+          "rawQuery": true,
+          "format": "table",
+          "editorMode": "code",
+          "rawSql": "select percentile_cont(0.5) within group (order by recovery_hours) * 3600 as \"Median recovery time\" from recoveries where repo = '$repo' and environment = '$environment' and $__timeFilter(recovered_at)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value"
+      }
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Deployments per week",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "dora-postgres"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 5
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "dora-postgres"
+          },
+          "refId": "A",
+          "rawQuery": true,
+          "format": "time_series",
+          "editorMode": "code",
+          "rawSql": "select week::timestamptz as time, deployments as \"Succeeded\", failed as \"Failed\" from weekly_metrics where repo = '$repo' and environment = '$environment' and $__timeFilter(week::timestamptz) order by 1"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "custom": {
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "lineWidth": 2,
+            "pointSize": 6,
+            "showPoints": "always",
+            "spanNulls": true,
+            "stacking": {
+              "mode": "normal",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Lead time for changes (weekly median)",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "dora-postgres"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 5
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "dora-postgres"
+          },
+          "refId": "A",
+          "rawQuery": true,
+          "format": "time_series",
+          "editorMode": "code",
+          "rawSql": "select week::timestamptz as time, median_lead_time_hours * 3600 as \"Lead time\" from weekly_metrics where repo = '$repo' and environment = '$environment' and $__timeFilter(week::timestamptz) order by 1"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "lineWidth": 2,
+            "pointSize": 6,
+            "showPoints": "always",
+            "spanNulls": true
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Change failure rate (weekly)",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "dora-postgres"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 13
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "dora-postgres"
+          },
+          "refId": "A",
+          "rawQuery": true,
+          "format": "time_series",
+          "editorMode": "code",
+          "rawSql": "select week::timestamptz as time, change_failure_rate as \"Change failure rate\" from weekly_metrics where repo = '$repo' and environment = '$environment' and $__timeFilter(week::timestamptz) order by 1"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "lineWidth": 2,
+            "pointSize": 6,
+            "showPoints": "always",
+            "spanNulls": true
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "Recovery time (weekly median)",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "dora-postgres"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 13
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "dora-postgres"
+          },
+          "refId": "A",
+          "rawQuery": true,
+          "format": "time_series",
+          "editorMode": "code",
+          "rawSql": "select week::timestamptz as time, median_recovery_hours * 3600 as \"Recovery time\" from weekly_metrics where repo = '$repo' and environment = '$environment' and $__timeFilter(week::timestamptz) order by 1"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "lineWidth": 2,
+            "pointSize": 6,
+            "showPoints": "always",
+            "spanNulls": true
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    }
+  ]
+}
