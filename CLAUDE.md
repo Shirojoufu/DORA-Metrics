@@ -16,7 +16,9 @@ admission webhook).
   successes `inactive`. Stops paging once past the time window.
 - `src/dora_metrics/store.py`: Postgres upserts. Stores per-event rows
   (lead_times, recoveries) so dashboard SQL only aggregates.
-- `src/dora_metrics/cli.py`: `dora --repo owner/name [--environment] [--days] [--db]`.
+- `src/dora_metrics/cli.py`: `dora owner/name [--environment] [--days] [--db]`.
+  `--db` defaults to `$DORA_DATABASE_URL`, else the compose database; only that
+  built-in default may fail quietly (report still prints, exit 0).
 - `grafana/build_dashboard.py` generates `grafana/dashboards/dora.json`. Never
   hand-edit the JSON; CI fails if they differ.
 - `compose.yaml`: Postgres 18.6 + Grafana 13.2.4, dashboard provisioned.
@@ -35,33 +37,29 @@ uv run python grafana/build_dashboard.py
 
 - Windows, Git Bash and PowerShell. In Git Bash, prefix `docker run -v` with
   `MSYS_NO_PATHCONV=1` or container paths get mangled.
-- No `gh` login yet; anonymous GitHub API limit is 60 requests/hour. Set
-  `GITHUB_TOKEN` for real runs.
+- `gh auth login` is done; the tool picks up its token (5,000 requests/hour).
+  Anonymous is 60/hour.
 - Git commits use the GitHub noreply email (pushes with the personal email are
   blocked by GitHub).
 
 ## Status (2026-10-21)
 
-Built and tested: 13 tests (8 metrics, 4 client against a fake API, 1 Postgres
-integration), every Grafana panel verified against known data via Grafana's
+Built and tested: 20 tests (8 metrics, 4 client against a fake API, 7 CLI, 1
+Postgres integration), every Grafana panel verified against known data via Grafana's
 API, CI with a Postgres service container, actionlint clean.
 
-In progress (uncommitted, 2026-10-21): `dora owner/name` positional form with
-`--db` defaulting to the compose database (soft-fails if it's down), clearer
-"repo not found" error, README PowerShell notes, 5s Postgres connect timeout.
-To do: re-test the unreachable-DB paths, update README/CLAUDE.md commands for
-the new form, then the user reviews and commits. Pushed so far: initial commit
-and the "1 deploy" fix; CI green. `gh auth login` done, so the token is there.
-Service-Template now records Deployments and the tool reports on it.
+Done: first push (CI green); Service-Template records Deployments and this
+tool reports on it.
 
 Next:
-1. ~~First commit and push~~ Done; 3 is done too.
-2. With a GitHub token, run against a real repo with deployment history (e.g.
-   `vercel/next.js`, environment `Production`), fill the dashboard, and add real
-   output and a screenshot to the README.
-3. Service-Template branch `record-deployments` makes its CI record GitHub
-   Deployments (`production` for the app, `policy-webhook` for the webhook).
-   Once merged, this tool can report on Service-Template itself.
-4. Optional project 4: a flaky-test detector. Parse test results across CI
+1. Run against a real repo with deployment history (e.g. `vercel/next.js`;
+   the environment filter ignores case), fill the dashboard, and add real
+   output and a screenshot to the README. One PR, docs only.
+2. Then one deeper item, one PR each: change failure rate from incidents
+   (reverts, `incident` label) not just failed deploys; a GitHub Action that
+   writes the report to the job summary; DORA performance bands; listing real
+   environment names when none match; GraphQL to cut per-deployment and per-PR
+   requests; incremental runs; `--format json`; PyPI for `uvx`; type checking.
+3. Optional project 4: a flaky-test detector. Parse test results across CI
    runs, flag flaky tests, and post a summary comment on PRs, optionally with an
    AI-written summary of failures.
