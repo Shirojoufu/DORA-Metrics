@@ -3,8 +3,9 @@
 from datetime import UTC, datetime
 
 import httpx
+import pytest
 
-from dora_metrics.github import GitHub
+from dora_metrics.github import GitHub, RepoNotFound
 
 SINCE = datetime(2026, 10, 1, tzinfo=UTC)
 REPO = "acme/shop"
@@ -134,3 +135,10 @@ def test_merged_pull_requests_skip_unmerged_and_use_earliest_commit():
 
     assert pr.number == 2
     assert pr.first_commit_at == datetime(2026, 10, 4, 15, 30, tzinfo=UTC)
+
+
+def test_missing_repo_raises_repo_not_found():
+    gh = fake_api({f"/repos/{REPO}": httpx.Response(404, json={"message": "Not Found"})})
+
+    with pytest.raises(RepoNotFound):
+        gh.default_branch(REPO)

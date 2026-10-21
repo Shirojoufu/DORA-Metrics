@@ -30,9 +30,11 @@ To chart the results in Grafana:
 
 ```
 docker compose up -d
-export DORA_DATABASE_URL=postgresql://dora:dora@localhost:5432/dora
-uv run dora --repo owner/name --days 180
+uv run dora --repo owner/name --days 180 --db postgresql://dora:dora@localhost:5432/dora
 ```
+
+To skip `--db`, set `DORA_DATABASE_URL` instead: `export DORA_DATABASE_URL=...`
+in bash, or `$env:DORA_DATABASE_URL = "..."` in PowerShell.
 
 Then open <http://localhost:3000>. The DORA dashboard is the home page, with a
 dropdown per repo and environment. Run the command again at any time. It
@@ -117,3 +119,7 @@ docker compose up -d postgres
 DORA_TEST_DATABASE_URL=postgresql://dora:dora@localhost:5432/dora uv run pytest
 uv run ruff check && uv run ruff format --check
 ```
+
+These are bash. In PowerShell, set the variable on its own line first
+(`$env:DORA_TEST_DATABASE_URL = "postgresql://dora:dora@localhost:5432/dora"`)
+and run the two ruff commands separately.

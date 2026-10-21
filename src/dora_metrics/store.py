@@ -81,7 +81,8 @@ def save(
 ) -> None:
     """Upsert everything, so re-running over an overlapping window is safe."""
     shipped = {lt.pr.number: lt for lt in lead_times(prs, deployments)}
-    with psycopg.connect(database_url) as conn, conn.cursor() as cur:
+    # Without a timeout, a closed port on Windows can hang for minutes.
+    with psycopg.connect(database_url, connect_timeout=5) as conn, conn.cursor() as cur:
         cur.execute(SCHEMA)
         cur.executemany(
             """

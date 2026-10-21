@@ -9,7 +9,7 @@ from datetime import UTC, datetime, timedelta
 
 import httpx
 
-from .github import GitHub, find_token
+from .github import GitHub, RepoNotFound, find_token
 from .metrics import Summary, summarise, weekly
 
 
@@ -51,24 +51,32 @@ def _print_report(repo: str, env: str, days: int, overall: Summary, weeks) -> No
             )
 
 
+LOCAL_DATABASE_URL = "postgresql://dora:dora@localhost:5432/dora"  # from compose.yaml
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="dora",
         description="Calculate DORA metrics from a GitHub repo's deployments and pull requests.",
     )
-    parser.add_argument(
-        "--repo", required=True, help="owner/name, e.g. Shirojoufu/Service-Template"
-    )
+    parser.add_argument("repo", nargs="?", help="owner/name, e.g. Shirojoufu/Service-Template")
+    parser.add_argument("--repo", dest="repo_option", help=argparse.SUPPRESS)  # older spelling
     parser.add_argument(
         "--environment", default="production", help="deployment environment (default: production)"
     )
     parser.add_argument("--days", type=int, default=90, help="how far back to look (default: 90)")
     parser.add_argument(
         "--db",
-        default=os.environ.get("DORA_DATABASE_URL"),
-        help="Postgres URL to save results for Grafana (default: $DORA_DATABASE_URL)",
+        help="Postgres URL to save results for Grafana "
+        "(default: $DORA_DATABASE_URL, else the compose.yaml database)",
     )
     args = parser.parse_args(argv)
+    args.repo = args.repo or args.repo_option
+    if not args.repo:
+        parser.error("give a repo, e.g. dora Shirojoufu/Service-Template")
+    # Only the built-in default may be missing quietly; a URL the user chose must work.
+    db_chosen = args.db or os.environ.get("DORA_DATABASE_URL")
+    db = db_chosen or LOCAL_DATABASE_URL
 
     token = find_token()
     if token is None:
@@ -84,6 +92,12 @@ def main(argv: list[str] | None = None) -> int:
             branch = gh.default_branch(args.repo)
             deployments = gh.deployments(args.repo, args.environment, since)
             prs = gh.merged_pull_requests(args.repo, branch, since)
+    except RepoNotFound:
+        print(
+            f"Repository {args.repo} not found (or it's private and your token can't see it).",
+            file=sys.stderr,
+        )
+        return 1
     except httpx.HTTPStatusError as e:
         print(f"GitHub API error: {e.response.status_code} {e.request.url}", file=sys.stderr)
         if e.response.status_code in (403, 429):
@@ -100,11 +114,24 @@ def main(argv: list[str] | None = None) -> int:
             file=sys.stderr,
         )
 
-    if args.db:
-        from .store import save
+    import psycopg
 
-        save(args.db, args.repo, args.environment, prs, deployments, weeks)
-        print(f"\nSaved to {args.db.split('@')[-1]}")
+    from .store import save
+
+    try:
+        save(db, args.repo, args.environment, prs, deployments, weeks)
+    except psycopg.OperationalError as e:
+        sys.stdout.flush()
+        if db_chosen:
+            print(f"\nCouldn't save to {db.split('@')[-1]}: {e}", file=sys.stderr)
+            return 1
+        print(
+            "\nNot saved: no database at localhost:5432. "
+            "Run `docker compose up -d` to save results for Grafana.",
+            file=sys.stderr,
+        )
+        return 0
+    print(f"\nSaved to {db.split('@')[-1]}")
     return 0
 
 
