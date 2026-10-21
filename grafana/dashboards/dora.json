@@ -320,7 +320,7 @@
           "rawQuery": true,
           "format": "time_series",
           "editorMode": "code",
-          "rawSql": "select week::timestamptz as time, deployments as \"Succeeded\", failed as \"Failed\" from weekly_metrics where repo = '$repo' and environment = '$environment' and $__timeFilter(week::timestamptz) order by 1"
+          "rawSql": "select greatest(week::timestamptz, $__timeFrom()::timestamptz) as time, deployments as \"Succeeded\", failed as \"Failed\" from weekly_metrics where repo = '$repo' and environment = '$environment' and week::timestamptz + interval '7 days' > $__timeFrom()::timestamptz and week::timestamptz < $__timeTo()::timestamptz order by 1"
         }
       ],
       "fieldConfig": {
@@ -375,7 +375,7 @@
           "rawQuery": true,
           "format": "time_series",
           "editorMode": "code",
-          "rawSql": "select week::timestamptz as time, median_lead_time_hours * 3600 as \"Lead time\" from weekly_metrics where repo = '$repo' and environment = '$environment' and $__timeFilter(week::timestamptz) order by 1"
+          "rawSql": "select greatest(week::timestamptz, $__timeFrom()::timestamptz) as time, median_lead_time_hours * 3600 as \"Lead time\" from weekly_metrics where repo = '$repo' and environment = '$environment' and week::timestamptz + interval '7 days' > $__timeFrom()::timestamptz and week::timestamptz < $__timeTo()::timestamptz order by 1"
         }
       ],
       "fieldConfig": {
@@ -426,7 +426,7 @@
           "rawQuery": true,
           "format": "time_series",
           "editorMode": "code",
-          "rawSql": "select week::timestamptz as time, change_failure_rate as \"Change failure rate\" from weekly_metrics where repo = '$repo' and environment = '$environment' and $__timeFilter(week::timestamptz) order by 1"
+          "rawSql": "select greatest(week::timestamptz, $__timeFrom()::timestamptz) as time, change_failure_rate as \"Change failure rate\" from weekly_metrics where repo = '$repo' and environment = '$environment' and week::timestamptz + interval '7 days' > $__timeFrom()::timestamptz and week::timestamptz < $__timeTo()::timestamptz order by 1"
         }
       ],
       "fieldConfig": {
@@ -477,7 +477,7 @@
           "rawQuery": true,
           "format": "time_series",
           "editorMode": "code",
-          "rawSql": "select week::timestamptz as time, median_recovery_hours * 3600 as \"Recovery time\" from weekly_metrics where repo = '$repo' and environment = '$environment' and $__timeFilter(week::timestamptz) order by 1"
+          "rawSql": "select greatest(week::timestamptz, $__timeFrom()::timestamptz) as time, median_recovery_hours * 3600 as \"Recovery time\" from weekly_metrics where repo = '$repo' and environment = '$environment' and week::timestamptz + interval '7 days' > $__timeFrom()::timestamptz and week::timestamptz < $__timeTo()::timestamptz order by 1"
         }
       ],
       "fieldConfig": {

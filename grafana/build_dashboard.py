@@ -96,7 +96,12 @@ def variable(name, label, sql):
     }
 
 
-weekly = f"from weekly_metrics where {WHERE} and $__timeFilter(week::timestamptz) order by 1"
+# Keep every week that overlaps the range, not only weeks that start inside it,
+# and plot a partial first week at the range start so it isn't clipped.
+WEEK = "greatest(week::timestamptz, $__timeFrom()::timestamptz)"
+weekly = f"""from weekly_metrics where {WHERE}
+             and week::timestamptz + interval '7 days' > $__timeFrom()::timestamptz
+             and week::timestamptz < $__timeTo()::timestamptz order by 1"""
 
 dashboard = {
     "uid": "dora",
@@ -168,7 +173,7 @@ dashboard = {
         timeseries(
             5,
             "Deployments per week",
-            f"""select week::timestamptz as time, deployments as "Succeeded",
+            f"""select {WEEK} as time, deployments as "Succeeded",
                        failed as "Failed" {weekly}""",
             "none",
             0,
@@ -178,7 +183,7 @@ dashboard = {
         timeseries(
             6,
             "Lead time for changes (weekly median)",
-            f"""select week::timestamptz as time,
+            f"""select {WEEK} as time,
                        median_lead_time_hours * 3600 as "Lead time" {weekly}""",
             "s",
             12,
@@ -187,7 +192,7 @@ dashboard = {
         timeseries(
             7,
             "Change failure rate (weekly)",
-            f"""select week::timestamptz as time,
+            f"""select {WEEK} as time,
                        change_failure_rate as "Change failure rate" {weekly}""",
             "percentunit",
             0,
@@ -196,7 +201,7 @@ dashboard = {
         timeseries(
             8,
             "Recovery time (weekly median)",
-            f"""select week::timestamptz as time,
+            f"""select {WEEK} as time,
                        median_recovery_hours * 3600 as "Recovery time" {weekly}""",
             "s",
             12,
