@@ -51,6 +51,31 @@ def _print_report(repo: str, env: str, days: int, overall: Summary, weeks) -> No
             )
 
 
+def _print_markdown(repo: str, env: str, days: int, overall: Summary, weeks) -> None:
+    """The same report as GitHub-flavored Markdown, e.g. for a job summary."""
+    per_week = overall.deployments / (days / 7)
+    noun = "deploy" if overall.deployments == 1 else "deploys"
+    print(f"### DORA metrics for {repo} ({env}), last {days} days\n")
+    print("| Metric | Value |\n|---|---|")
+    print(f"| Deployment frequency | {overall.deployments} {noun} ({per_week:.1f}/week) |")
+    print(f"| Lead time for changes | {_duration(overall.median_lead_time)} (median) |")
+    print(
+        f"| Change failure rate | {_rate(overall.change_failure_rate)} "
+        f"({overall.failed} of {overall.deployments + overall.failed}) |"
+    )
+    print(f"| Recovery time | {_duration(overall.median_recovery_time)} (median) |")
+    if weeks:
+        print("\n<details><summary>By week</summary>\n")
+        print("| Week of | Deploys | Failed | CFR | Lead | Recovery |\n|---|--:|--:|--:|--:|--:|")
+        for week, s in weeks.items():
+            print(
+                f"| {week.isoformat()} | {s.deployments} | {s.failed} "
+                f"| {_rate(s.change_failure_rate)} | {_duration(s.median_lead_time)} "
+                f"| {_duration(s.median_recovery_time)} |"
+            )
+        print("\n</details>")
+
+
 LOCAL_DATABASE_URL = "postgresql://dora:dora@localhost:5432/dora"  # from compose.yaml
 
 
@@ -69,6 +94,13 @@ def main(argv: list[str] | None = None) -> int:
         "--db",
         help="Postgres URL to save results for Grafana "
         "(default: $DORA_DATABASE_URL, else the compose.yaml database)",
+    )
+    parser.add_argument("--no-save", action="store_true", help="only print the report")
+    parser.add_argument(
+        "--format",
+        choices=["text", "markdown"],
+        default="text",
+        help="report format; markdown suits a GitHub job summary (default: text)",
     )
     args = parser.parse_args(argv)
     args.repo = args.repo or args.repo_option
@@ -105,7 +137,8 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     weeks = weekly(prs, deployments)
-    _print_report(args.repo, args.environment, args.days, summarise(prs, deployments), weeks)
+    report = _print_markdown if args.format == "markdown" else _print_report
+    report(args.repo, args.environment, args.days, summarise(prs, deployments), weeks)
     if not deployments:
         sys.stdout.flush()  # keep the hint below the report
         print(
@@ -113,6 +146,8 @@ def main(argv: list[str] | None = None) -> int:
             "GitHub Deployments, and is that the right environment name?",
             file=sys.stderr,
         )
+    if args.no_save:
+        return 0
 
     import psycopg
 
@@ -131,7 +166,9 @@ def main(argv: list[str] | None = None) -> int:
             file=sys.stderr,
         )
         return 0
-    print(f"\nSaved to {db.split('@')[-1]}")
+    # Keep stdout to the report itself when it's Markdown going into a file
+    out = sys.stderr if args.format == "markdown" else sys.stdout
+    print(f"\nSaved to {db.split('@')[-1]}", file=out)
     return 0
 
 

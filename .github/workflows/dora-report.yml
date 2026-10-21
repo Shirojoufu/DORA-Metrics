@@ -1,0 +1,28 @@
+name: DORA report
+
+# Runs this repo's own action against Service-Template, whose CI records a
+# GitHub Deployment per environment on every merge to main.
+on:
+  schedule:
+    - cron: "0 7 * * 1" # Mondays 07:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  report:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        environment: [production, policy-webhook]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: ./
+        with:
+          repo: Shirojoufu/Service-Template
+          environment: ${{ matrix.environment }}
