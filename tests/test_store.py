@@ -28,7 +28,7 @@ def deploy(id_, hours, state="success"):
 
 @pytest.fixture
 def conn():
-    with psycopg.connect(DB, autocommit=True) as c:
+    with psycopg.connect(DB, autocommit=True, connect_timeout=5) as c:
         yield c
         for table in ("deployments", "lead_times", "recoveries", "weekly_metrics"):
             c.execute(f"delete from {table} where repo = %s", (REPO,))

@@ -23,31 +23,29 @@ Requires [uv](https://docs.astral.sh/uv/) and Docker.
 
 ```
 uv sync
-uv run dora --repo owner/name
-```
-
-To chart the results in Grafana:
-
-```
 docker compose up -d
-uv run dora --repo owner/name --days 180 --db postgresql://dora:dora@localhost:5432/dora
+uv run dora owner/name
 ```
 
-To skip `--db`, set `DORA_DATABASE_URL` instead: `export DORA_DATABASE_URL=...`
-in bash, or `$env:DORA_DATABASE_URL = "..."` in PowerShell.
-
-Then open <http://localhost:3000>. The DORA dashboard is the home page, with a
-dropdown per repo and environment. Run the command again at any time. It
+That prints the report and saves it to the compose database. Open
+<http://localhost:3000> to see it charted: the DORA dashboard is the home page,
+with a dropdown per repo and environment. Run the command again at any time. It
 upserts, so overlapping windows don't duplicate anything.
+
+Without Docker it still works: the report prints, plus a note that nothing was
+saved.
 
 ### Options
 
 | Option | Default | |
 |---|---|---|
-| `--repo` | required | `owner/name` |
+| `owner/name` | required | The repo (`--repo owner/name` also works) |
 | `--environment` | `production` | Deployment environment to measure |
 | `--days` | `90` | How far back to look |
-| `--db` | `$DORA_DATABASE_URL` | Postgres URL. Without it, results are only printed. |
+| `--db` | `$DORA_DATABASE_URL`, else the compose database | Postgres URL. If you set one, failing to save is an error. |
+
+To set `DORA_DATABASE_URL`: `export DORA_DATABASE_URL=...` in bash, or
+`$env:DORA_DATABASE_URL = "..."` in PowerShell.
 
 ### Authentication
 

@@ -1,4 +1,4 @@
-"""Command-line entry point: `dora --repo owner/name`."""
+"""Command-line entry point: `dora owner/name`."""
 
 from __future__ import annotations
 
