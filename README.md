@@ -177,6 +177,28 @@ flowchart LR
   was opened. That's the usual DORA reading ("commit to production"), but it's
   longer than "PR opened to production".
 
+## Prior art
+
+DORA tooling already exists, and for a whole engineering org one of these is
+probably the better fit:
+
+- [Four Keys](https://github.com/dora-team/fourkeys), Google's original
+  open-source pipeline (webhooks into BigQuery on GCP). Now archived.
+- [Apache DevLake](https://devlake.apache.org/docs/DORA), a full
+  engineering-metrics platform with a DORA dashboard in a bundled Grafana. It
+  reads GitHub, GitLab, Jenkins, Jira and more, with configurable rules for
+  what counts as a deployment or an incident.
+- [Middleware](https://github.com/middlewarehq/middleware), an open-source DORA
+  app with its own UI, sync server, Postgres and Redis.
+- Commercial tools such as Sleuth, LinearB and Swarmia, and the DORA reports
+  built into GitLab.
+
+This project is deliberately smaller. It reads one source, GitHub Deployments
+plus merged PRs. It runs as a single command or one workflow step, with no
+service to host, and keeps the metric definitions in one short file you can
+read in a few minutes. It suits a team that already records Deployments and
+wants the numbers this week, not a platform rollout.
+
 ## Development
 
 ```
