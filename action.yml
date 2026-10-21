@@ -1,0 +1,41 @@
+name: DORA metrics report
+description: Report a repo's four DORA metrics, from its GitHub Deployments and merged PRs, in the job summary.
+author: Shirojoufu
+branding:
+  icon: activity
+  color: blue
+
+inputs:
+  repo:
+    description: Repo to report on, as owner/name
+    default: ${{ github.repository }}
+  environment:
+    description: Deployment environment to measure
+    default: production
+  days:
+    description: How far back to look
+    default: "90"
+  token:
+    description: >-
+      Token for the GitHub API. The default job token works for the current
+      repo with deployments, pull-requests and contents read permissions.
+    default: ${{ github.token }}
+
+runs:
+  using: composite
+  steps:
+    # Pinned by commit: setup-uv no longer publishes floating major tags
+    - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+
+    - name: Report DORA metrics
+      shell: bash
+      # Inputs go through env, never straight into the script
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+        REPO: ${{ inputs.repo }}
+        ENVIRONMENT: ${{ inputs.environment }}
+        DAYS: ${{ inputs.days }}
+      run: |
+        uv run --project "$GITHUB_ACTION_PATH" --locked --no-dev \
+          dora "$REPO" --environment "$ENVIRONMENT" --days "$DAYS" \
+          --format markdown --no-save | tee -a "$GITHUB_STEP_SUMMARY"

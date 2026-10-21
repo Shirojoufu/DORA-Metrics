@@ -1,15 +1,19 @@
 """CLI tests: a fake GitHub client and a fake save, so no network or database."""
 
+from datetime import UTC, datetime, timedelta
+
 import psycopg
 import pytest
 
 from dora_metrics import cli, store
 from dora_metrics.cli import LOCAL_DATABASE_URL, main
 from dora_metrics.github import RepoNotFound
+from dora_metrics.models import Deployment
 
 
 class FakeGitHub:
     missing = False
+    deploys: list[Deployment] = []
 
     def __init__(self, token):
         pass
@@ -26,7 +30,7 @@ class FakeGitHub:
         return "main"
 
     def deployments(self, repo, environment, since):
-        return []
+        return self.deploys
 
     def merged_pull_requests(self, repo, base, since):
         return []
@@ -104,3 +108,24 @@ def test_missing_repo_explains_itself(save, monkeypatch, capsys):
 
     assert "Repository acme/nope not found" in capsys.readouterr().err
     assert save.urls == []
+
+
+def test_no_save_only_prints(save, capsys):
+    assert main(["acme/shop", "--no-save"]) == 0
+
+    assert save.urls == []
+    assert "DORA metrics for acme/shop" in capsys.readouterr().out
+
+
+def test_markdown_report_has_tables_and_nothing_else_on_stdout(save, monkeypatch, capsys):
+    finished = datetime.now(UTC) - timedelta(days=1)
+    deploy = Deployment(1, "abc", "production", finished, "success", finished)
+    monkeypatch.setattr(FakeGitHub, "deploys", [deploy])
+
+    assert main(["acme/shop", "--format", "markdown"]) == 0
+
+    out, err = capsys.readouterr()
+    assert out.startswith("### DORA metrics for acme/shop (production), last 90 days")
+    assert "| Deployment frequency | 1 deploy (0.1/week) |" in out
+    assert "| Week of | Deploys | Failed |" in out
+    assert "Saved to" not in out and "Saved to" in err

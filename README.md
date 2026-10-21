@@ -79,6 +79,8 @@ saved.
 | `--environment` | `production` | Deployment environment to measure |
 | `--days` | `90` | How far back to look |
 | `--db` | `$DORA_DATABASE_URL`, else the compose database | Postgres URL. If you set one, failing to save is an error. |
+| `--no-save` | off | Only print the report |
+| `--format` | `text` | `markdown` prints tables, e.g. for a GitHub job summary |
 
 To set `DORA_DATABASE_URL`: `export DORA_DATABASE_URL=...` in bash, or
 `$env:DORA_DATABASE_URL = "..."` in PowerShell.
@@ -89,6 +91,36 @@ The tool uses `GITHUB_TOKEN` if set, otherwise the GitHub CLI's token if you've
 run `gh auth login`. Without either it falls back to GitHub's anonymous limit of
 60 requests an hour, which is only enough for small repos. Each deployment costs
 one extra request (its statuses) and each merged PR one more (its commits).
+
+## GitHub Action
+
+To get the report in a repo's Actions tab without running Grafana, add a
+workflow. The report lands in the job summary:
+
+```yaml
+name: DORA report
+on:
+  schedule:
+    - cron: "0 7 * * 1" # Mondays
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  deployments: read
+  pull-requests: read
+
+jobs:
+  report:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: Shirojoufu/DORA-Metrics@main
+        with:
+          environment: production # the default; also repo, days, token
+```
+
+It defaults to the repo it runs in, with the job's own token. This repo runs it
+weekly against [Service-Template](https://github.com/Shirojoufu/Service-Template)
+in [dora-report.yml](.github/workflows/dora-report.yml).
 
 ## Recording deployments
 
