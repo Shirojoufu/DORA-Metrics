@@ -42,12 +42,20 @@ uv run python grafana/build_dashboard.py
 
 ## Status (2026-10-21)
 
-Built and tested: 12 tests (8 metrics, 3 client against a fake API, 1 Postgres
+Built and tested: 13 tests (8 metrics, 4 client against a fake API, 1 Postgres
 integration), every Grafana panel verified against known data via Grafana's
 API, CI with a Postgres service container, actionlint clean.
 
+In progress (uncommitted, 2026-10-21): `dora owner/name` positional form with
+`--db` defaulting to the compose database (soft-fails if it's down), clearer
+"repo not found" error, README PowerShell notes, 5s Postgres connect timeout.
+To do: re-test the unreachable-DB paths, update README/CLAUDE.md commands for
+the new form, then the user reviews and commits. Pushed so far: initial commit
+and the "1 deploy" fix; CI green. `gh auth login` done, so the token is there.
+Service-Template now records Deployments and the tool reports on it.
+
 Next:
-1. First commit and push to a new public GitHub repo (user does the push).
+1. ~~First commit and push~~ Done; 3 is done too.
 2. With a GitHub token, run against a real repo with deployment history (e.g.
    `vercel/next.js`, environment `Production`), fill the dashboard, and add real
    output and a screenshot to the README.

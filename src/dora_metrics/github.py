@@ -33,6 +33,10 @@ def find_token() -> str | None:
     return None
 
 
+class RepoNotFound(Exception):
+    """The repo doesn't exist, or it's private and the token can't see it."""
+
+
 class GitHub:
     def __init__(
         self,
@@ -72,6 +76,8 @@ class GitHub:
 
     def default_branch(self, repo: str) -> str:
         response = self._http.get(f"/repos/{repo}")
+        if response.status_code == 404:
+            raise RepoNotFound(repo)  # GitHub also says 404 for private repos it hides
         response.raise_for_status()
         return response.json()["default_branch"]
 
