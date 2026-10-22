@@ -15,6 +15,8 @@ concurrency:
 jobs:
   lint-and-test:
     runs-on: ubuntu-24.04
+    outputs:
+      tested: ${{ steps.tests.outcome == 'success' || steps.tests.outcome == 'failure' }}
     # Real Postgres for tests/test_store.py
     services:
       postgres:
@@ -50,10 +52,63 @@ jobs:
           uv run ruff format --check
 
       - name: Test
-        run: uv run pytest -v
+        id: tests
+        continue-on-error: true
+        run: >
+          uv run pytest -v
+          --junitxml=.flaky/junit.xml
+          --cov --cov-context=test --cov-report=term
+          --cov-report=json:.flaky/coverage.json
+
+      # A test that fails, then passes on the same commit, is flaky rather than broken.
+      - name: Retry failed tests
+        id: retry
+        if: steps.tests.outcome == 'failure'
+        continue-on-error: true
+        run: uv run pytest -v --last-failed --no-cov --junitxml=.flaky/junit-retry-1.xml
+
+      - name: Upload test results
+        if: always() && steps.tests.outcome != 'skipped'
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-results-${{ github.run_attempt }}
+          path: .flaky/
+          include-hidden-files: true
+          retention-days: 7
+
+      - name: Fail on real test failures
+        if: steps.tests.outcome == 'failure' && steps.retry.outcome != 'success'
+        run: |
+          echo "::error::Tests failed and still failed on retry"
+          exit 1
 
       - name: Dashboard JSON matches its generator
         run: |
           uv run python grafana/build_dashboard.py
           git diff --exit-code grafana/dashboards/ \
             || { echo "::error::Run 'uv run python grafana/build_dashboard.py' and commit the result"; exit 1; }
+
+  # Separate job so only this step gets write access: it pushes run history to the
+  # flaky-data branch. See https://github.com/Shirojoufu/Flaky-Tests
+  flaky-tests:
+    needs: lint-and-test
+    if: always() && needs.lint-and-test.outputs.tested == 'true'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0  # diff coverage compares against the PR base
+          persist-credentials: false
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: test-results-${{ github.run_attempt }}
+          path: .flaky
+
+      - uses: Shirojoufu/Flaky-Tests@fcbe75aeca9ff191a0e95997efad479666029852
+        with:
+          junit: .flaky/junit.xml
+          retry-junit: .flaky/junit-retry-*.xml
+          coverage: .flaky/coverage.json
