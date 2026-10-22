@@ -1,0 +1,490 @@
+{
+ "base_sha": "cc5389e46d4dcce24150b82d0651202c1a34baf2",
+ "commit_message": "Bump flaky test detector to 4d866f2 (#9)",
+ "coverage": {
+  "covered": 247,
+  "files": {
+   "src/dora_metrics/__init__.py": {
+    "covered": 0,
+    "missing": [],
+    "percent": 100.0,
+    "statements": 0
+   },
+   "src/dora_metrics/cli.py": {
+    "covered": 87,
+    "missing": [
+     [
+      19,
+      24
+     ],
+     [
+      43,
+      43
+     ],
+     [
+      46,
+      47
+     ],
+     [
+      115,
+      115
+     ],
+     [
+      133,
+      137
+     ],
+     [
+      176,
+      176
+     ]
+    ],
+    "percent": 84.47,
+    "statements": 103
+   },
+   "src/dora_metrics/github.py": {
+    "covered": 65,
+    "missing": [
+     [
+      27,
+      33
+     ],
+     [
+      58,
+      58
+     ],
+     [
+      61,
+      61
+     ],
+     [
+      64,
+      64
+     ],
+     [
+      81,
+      82
+     ]
+    ],
+    "percent": 84.42,
+    "statements": 77
+   },
+   "src/dora_metrics/metrics.py": {
+    "covered": 64,
+    "missing": [],
+    "percent": 100.0,
+    "statements": 64
+   },
+   "src/dora_metrics/models.py": {
+    "covered": 9,
+    "missing": [],
+    "percent": 100.0,
+    "statements": 9
+   },
+   "src/dora_metrics/store.py": {
+    "covered": 22,
+    "missing": [],
+    "percent": 100.0,
+    "statements": 22
+   }
+  },
+  "percent": 89.82,
+  "statements": 275
+ },
+ "diff_coverage": {
+  "changed_statements": 0,
+  "covered": 0,
+  "files": {},
+  "percent": null,
+  "unmeasured_files": []
+ },
+ "event": "push",
+ "files": [
+  [
+   "pyproject.toml",
+   "5c8d32c25509"
+  ],
+  [
+   "src/dora_metrics/__init__.py",
+   "e69de29bb2d1"
+  ],
+  [
+   "src/dora_metrics/cli.py",
+   "a2a00bff85f7"
+  ],
+  [
+   "src/dora_metrics/github.py",
+   "58d57cc2daeb"
+  ],
+  [
+   "src/dora_metrics/metrics.py",
+   "7515fb7aecca"
+  ],
+  [
+   "src/dora_metrics/models.py",
+   "8487bd2892b0"
+  ],
+  [
+   "src/dora_metrics/store.py",
+   "2c6da4ff1241"
+  ],
+  [
+   "tests/test_cli.py",
+   "a87fc1c1d7c9"
+  ],
+  [
+   "tests/test_github.py",
+   "856d0a0e3040"
+  ],
+  [
+   "tests/test_metrics.py",
+   "02831b6852b2"
+  ],
+  [
+   "tests/test_store.py",
+   "0c482b2a0432"
+  ],
+  [
+   "uv.lock",
+   "a7e6a4d4da02"
+  ]
+ ],
+ "merged_pr": 9,
+ "pr_head_ref": null,
+ "pr_head_sha": null,
+ "pr_number": null,
+ "ref": "refs/heads/main",
+ "repository": "Shirojoufu/DORA-Metrics",
+ "run_attempt": 1,
+ "run_id": "39855059317",
+ "schema": 1,
+ "sha": "dcfdd759893f2bf9265b5487fbeaf751d62da000",
+ "tests": {
+  "tests.test_cli.test_chosen_database_down_is_an_error[env]": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    0,
+    2,
+    4,
+    7,
+    11
+   ],
+   "duration": 0.003,
+   "fingerprint": "fd68457a7888f0b7486c",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_cli.test_chosen_database_down_is_an_error[option]": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    0,
+    2,
+    4,
+    7,
+    11
+   ],
+   "duration": 0.003,
+   "fingerprint": "fd68457a7888f0b7486c",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_cli.test_default_database_down_still_prints_report": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    0,
+    2,
+    4,
+    7,
+    11
+   ],
+   "duration": 0.002,
+   "fingerprint": "fd68457a7888f0b7486c",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_cli.test_markdown_report_has_tables_and_nothing_else_on_stdout": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    0,
+    2,
+    4,
+    5,
+    7,
+    11
+   ],
+   "duration": 0.003,
+   "fingerprint": "556b8e6259444ca260f9",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_cli.test_missing_repo_explains_itself": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    0,
+    2,
+    7,
+    11
+   ],
+   "duration": 0.002,
+   "fingerprint": "5dae958c92d3167cfdc2",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_cli.test_no_repo_is_a_usage_error": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    0,
+    2,
+    7,
+    11
+   ],
+   "duration": 0.003,
+   "fingerprint": "5dae958c92d3167cfdc2",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_cli.test_no_save_only_prints": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    0,
+    2,
+    4,
+    7,
+    11
+   ],
+   "duration": 0.002,
+   "fingerprint": "fd68457a7888f0b7486c",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_cli.test_repo_as_argument_saves_to_compose_database": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    0,
+    2,
+    4,
+    7,
+    11
+   ],
+   "duration": 0.006,
+   "fingerprint": "fd68457a7888f0b7486c",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_cli.test_repo_option_still_works": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    0,
+    2,
+    4,
+    7,
+    11
+   ],
+   "duration": 0.002,
+   "fingerprint": "fd68457a7888f0b7486c",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_github.test_deployment_outcome_ignores_later_inactive_status": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    0,
+    3,
+    8,
+    11
+   ],
+   "duration": 0.004,
+   "fingerprint": "e2fca3ee473bc93f7518",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_github.test_merged_pull_requests_skip_unmerged_and_use_earliest_commit": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    0,
+    3,
+    8,
+    11
+   ],
+   "duration": 0.002,
+   "fingerprint": "e2fca3ee473bc93f7518",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_github.test_missing_repo_raises_repo_not_found": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    0,
+    3,
+    8,
+    11
+   ],
+   "duration": 0.002,
+   "fingerprint": "e2fca3ee473bc93f7518",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_github.test_unfinished_deployments_are_skipped_and_paging_stops_at_since": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    0,
+    3,
+    8,
+    11
+   ],
+   "duration": 0.003,
+   "fingerprint": "e2fca3ee473bc93f7518",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_metrics.test_change_failure_rate": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    0,
+    4,
+    5,
+    9,
+    11
+   ],
+   "duration": 0.001,
+   "fingerprint": "b79df00511fb14df0bd3",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_metrics.test_lead_time_runs_from_first_commit_to_next_successful_deploy": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    0,
+    4,
+    5,
+    9,
+    11
+   ],
+   "duration": 0.001,
+   "fingerprint": "b79df00511fb14df0bd3",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_metrics.test_order_of_input_does_not_matter": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    0,
+    4,
+    5,
+    9,
+    11
+   ],
+   "duration": 0.001,
+   "fingerprint": "b79df00511fb14df0bd3",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_metrics.test_run_of_failures_counts_as_one_recovery_from_the_first_failure": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    0,
+    4,
+    5,
+    9,
+    11
+   ],
+   "duration": 0.001,
+   "fingerprint": "b79df00511fb14df0bd3",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_metrics.test_summary_with_no_data": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    0,
+    4,
+    9,
+    11
+   ],
+   "duration": 0.001,
+   "fingerprint": "3677612da397067cbac5",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_metrics.test_unshipped_prs_have_no_lead_time": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    0,
+    4,
+    5,
+    9,
+    11
+   ],
+   "duration": 0.001,
+   "fingerprint": "b79df00511fb14df0bd3",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_metrics.test_week_start_is_monday": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    0,
+    4,
+    9,
+    11
+   ],
+   "duration": 0.001,
+   "fingerprint": "3677612da397067cbac5",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_metrics.test_weekly_counts_a_change_in_the_week_it_shipped": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    0,
+    4,
+    5,
+    9,
+    11
+   ],
+   "duration": 0.001,
+   "fingerprint": "b79df00511fb14df0bd3",
+   "fingerprint_kind": "precise"
+  },
+  "tests.test_store.test_save_stores_each_metric_and_is_safe_to_rerun": {
+   "attempts": [
+    "passed"
+   ],
+   "deps": [
+    0,
+    4,
+    5,
+    6,
+    10,
+    11
+   ],
+   "duration": 0.069,
+   "fingerprint": "e6410f87d50def2e4e0b",
+   "fingerprint_kind": "precise"
+  }
+ },
+ "timestamp": "2026-10-22T21:11:02Z",
+ "tree": "1bc6579699a8d02991ddc1e76caab39a60de64a3",
+ "workflow": "CI"
+}

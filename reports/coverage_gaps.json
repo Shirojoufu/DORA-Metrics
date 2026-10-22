@@ -1,12 +1,17 @@
 {
  "available": true,
- "run_index": 2,
- "sha": "cc5389e46d4dcce24150b82d0651202c1a34baf2",
+ "run_index": 4,
+ "sha": "dcfdd759893f2bf9265b5487fbeaf751d62da000",
  "percent": 89.82,
  "statements": 275,
  "covered": 247,
  "threshold": 80.0,
- "baseline": null,
+ "baseline": {
+  "run_index": 2,
+  "sha": "cc5389e46d4dcce24150b82d0651202c1a34baf2",
+  "percent": 89.82,
+  "delta": 0.0
+ },
  "below_threshold": [],
  "never_executed": [],
  "diff": {
