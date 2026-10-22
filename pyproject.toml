@@ -21,6 +21,7 @@ build-backend = "uv_build"
 [dependency-groups]
 dev = [
     "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
     "ruff>=0.17.1",
 ]
 
@@ -29,3 +30,12 @@ line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
+
+# Per-test coverage for flaky test detection: each test's fingerprint covers the files it runs.
+[tool.coverage.run]
+source = ["src/dora_metrics", "tests"]
+relative_files = true
+core = "ctrace"  # Python 3.14+ defaults to sysmon, which records per-test contexts incompletely
+
+[tool.coverage.json]
+show_contexts = true
