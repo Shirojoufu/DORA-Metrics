@@ -107,7 +107,7 @@ jobs:
           name: test-results-${{ github.run_attempt }}
           path: .flaky
 
-      - uses: Shirojoufu/Flaky-Tests@4d866f2c8023d510787af5defd2fac8305f5b800
+      - uses: Shirojoufu/Flaky-Tests@ec75748fc1a393599e37fe60872e412d57e89ae8 # v0.1.0
         with:
           junit: .flaky/junit.xml
           retry-junit: .flaky/junit-retry-*.xml
