@@ -1,10 +1,10 @@
 # Flaky test report
 
-**Runs analysed:** 11 (7 on main, 4 from pull requests) · **Tests tracked:** 22 · **Flaky:** 0 (🔴 0 critical, 🟠 0 high, 🟡 0 medium, ⚪ 0 low) · **Consistently failing:** 0 · **Fixed flakes:** 0
+**Runs analysed:** 12 (8 on main, 4 from pull requests) · **Tests tracked:** 22 · **Flaky:** 0 (🔴 0 critical, 🟠 0 high, 🟡 0 medium, ⚪ 0 low) · **Consistently failing:** 0 · **Fixed flakes:** 0
 
 ## This run
 
-main (merge of #18) · commit `49a2d2e` · Bump postgres from 18.6-alpine to 18.7-alpine (#18)
+main (merge of #14) · commit `a82ea64` · Bump astral-sh/setup-uv from 10.3.2 to 10.3.3 (#14)
 
 All 22 tests passed.
 
@@ -16,26 +16,26 @@ No flaky tests detected: no test has both passed and failed on the same code.
 
 ```mermaid
 xychart-beta
-    title "First-attempt pass rate (%), last 11 runs"
-    x-axis "Run" [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    title "First-attempt pass rate (%), last 12 runs"
+    x-axis "Run" [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     y-axis "Pass rate" 0 --> 100
-    line [100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0]
+    line [100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0]
 ```
 
 ```mermaid
 xychart-beta
-    title "Flaky failures per run, last 11 runs"
-    x-axis "Run" [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    title "Flaky failures per run, last 12 runs"
+    x-axis "Run" [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     y-axis "Flaky failures" 0 --> 1
-    bar [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    bar [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 ```
 
 ```mermaid
 xychart-beta
-    title "Line coverage (%), last 11 runs"
-    x-axis "Run" [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    title "Line coverage (%), last 12 runs"
+    x-axis "Run" [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     y-axis "Coverage" 0 --> 100
-    line [89.82, 89.82, 89.82, 89.82, 89.82, 89.82, 89.82, 89.82, 89.82, 89.82, 89.82]
+    line [89.82, 89.82, 89.82, 89.82, 89.82, 89.82, 89.82, 89.82, 89.82, 89.82, 89.82, 89.82]
 ```
 
 <details><summary>Run key</summary>
@@ -53,12 +53,13 @@ xychart-beta
 | 9 | `a62331b` | main (merge of #11) | 2026-10-28 |
 | 10 | `5f368af` | main (merge of #20) | 2026-11-18 |
 | 11 | `49a2d2e` | main (merge of #18) | 2026-11-18 |
+| 12 | `a82ea64` | main (merge of #14) | 2026-11-18 |
 
 </details>
 
 ## Coverage
 
-**Total:** 89.82% of 275 statements (+0.00 vs main at `5f368af`)
+**Total:** 89.82% of 275 statements (+0.00 vs main at `49a2d2e`)
 
 ## Graph data
 
